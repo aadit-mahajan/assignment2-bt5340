@@ -98,7 +98,6 @@ def free_energy(sequences, partition_function, kappa, temp, n=15):
             sw = 1 
 
         prob = sw / z
-        print(prob)
         free_energies[n_helix] += -R*temp*np.log(prob)
     free_energies = free_energies/1000  # convert to kJ/mol
     
@@ -120,11 +119,12 @@ def plot_free_energy(temps, free_energies, title, output_dir, type, kappa):
     plt.savefig(f'{output_dir}/{type}_kappa_{kappa :.3f}.png')
     plt.close()
 
+
 def workflow(kappa, type = 'ssa'):
     temp_min = 278
     temp_max = 368
     temp_step = 10
-    plot_output_dir = f'./output/{type}'
+    plot_output_dir = f'./fe_output/{type}'
     os.makedirs(plot_output_dir, exist_ok=True)
     z = partition_function(kappa)
     
@@ -141,8 +141,8 @@ def workflow(kappa, type = 'ssa'):
         fe = free_energy(seq, z, kappa, temp)
         fe_temps[temp] = fe
     
-    df = pd.DataFrame(fe_temps)
-    plot_free_energy(temps, df, f'Free Energy vs Number of Helical Residues ({type}), $\kappa = {kappa :.3f}$', plot_output_dir, type, kappa)
+    fe_df = pd.DataFrame(fe_temps)
+    plot_free_energy(temps, fe_df, f'Free Energy vs Number of Helical Residues ({type}), $\kappa = {kappa :.3f}$', plot_output_dir, type, kappa)
 
 if __name__ == '__main__':
     
