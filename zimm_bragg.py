@@ -1,23 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from scipy.interpolate import interp1d
 
 plt.style.use('seaborn-paper')
 
 T_REF = 298
 SIGMA = 0.001
 R = 8.314
-S_REF = 1.5
+S_REF = 1.5 # for scenario A, set to 1.5, for scenario B, set to 0.5
 NRES = 15
-TSTART = 200
-TEND = 450
+TSTART = 278
+TEND = 368
 TSTEP = 20
 
 S_HI = 1.5
 S_LO = 0.5
 
 def get_s_temp(temp, s_ref=S_REF):
-    s = s_ref * math.exp((T_REF-temp)/temp)
+    s = math.pow(s_ref, (T_REF/temp))
     return s
 
 def get_all_sequences():
@@ -157,13 +158,26 @@ def plot_util(temp_range, seqs):
     plt.close()
 
     # plt.show()
+    # interpolate to find temp for theta_H = 0.5
+    # This only works for scenario A (S_REF = 1.5) as the interpolation is done for the given temp range
+    # fraction helicity never reaches 0.5 for scenario B
+
+    f = interp1d(fh_arr, temp_range)
 
     plt.plot(temp, fh_arr)
+
+    plt.hlines(0.5, TSTART, TEND+TSTEP, colors='r', linestyles='dashed', label='theta_H = 0.5')
+    plt.vlines(f(0.5), 0, 0.5, colors='r', linestyles='dashed', label='T = 0.5')
+    plt.xlim(TSTART, TEND)
+    plt.ylim(0, 1)
     plt.xticks(temp)
     plt.xlabel('Temperature (K)')
     plt.ylabel(r'Fraction Helicity $\theta_H$')
     plt.title('Fraction Helicity vs Temperature')
+    
     plt.grid()
+    plt.legend()
+    plt.text(f(0.5), 0.1, f"$T_m = {f(0.5) :.2f} K$")
     plt.tight_layout()
     plt.savefig('temp_var.png')
     plt.close()
@@ -199,12 +213,11 @@ def plot_util_two_seq(temp_range, seqs):
 
 if __name__ == '__main__':
 
-   # Use the existing variables
-
     temp = range(TSTART, TEND+TSTEP, TSTEP)
     sequences = get_all_sequences()
 
     plot_util(temp, sequences)
+
     plot_util_two_seq(temp, sequences)
 
     FE_s_var(298, sequences)
