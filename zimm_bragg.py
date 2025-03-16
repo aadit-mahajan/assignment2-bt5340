@@ -75,7 +75,7 @@ def get_s_cont(seq, s_hi, s_lo, s1=3, e1=7, s2=10, e2=14):
             s_cont *= s_hi
         elif seq[i] == 1 and i not in helix_res:
             s_cont *= s_lo
-
+    
     return s_cont
 
 def FE_two_seq(temp, seqs):
@@ -200,9 +200,14 @@ def plot_util_two_seq(temp_range, seqs):
     plt.close()
 
     # plt.show()
-
-    plt.plot(temp, fh_arr)
-    plt.xticks(temp)
+    f = interp1d(fh_arr, temp_range)
+    plt.hlines(0.5, temp_range[0], temp_range[-1], colors='r', linestyles='dashed', label='theta_H = 0.5')
+    plt.vlines(f(0.5), 0, 0.5, colors='r', linestyles='dashed', label='T = 0.5')
+    plt.xlim(temp_range[0], temp_range[-1])
+    plt.ylim(0, 1)
+    plt.plot(temp_range, fh_arr)
+    plt.xticks(temp_range)
+    plt.text(f(0.5), 0.1, f"$T_m = {f(0.5) :.2f} K$")
     plt.xlabel('Temperature (K)')
     plt.ylabel(r'Fraction Helicity $\theta_H$')
     plt.title('Fraction Helicity vs Temperature (with 2 helical regions)')
@@ -218,7 +223,8 @@ if __name__ == '__main__':
 
     plot_util(temp, sequences)
 
-    plot_util_two_seq(temp, sequences)
+    two_seq_temp_range = range(50, 400, 50)
+    plot_util_two_seq(two_seq_temp_range, sequences)
 
     FE_s_var(298, sequences)
 
